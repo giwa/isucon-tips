@@ -52,10 +52,42 @@ redis-cli
 
 https://github.com/go-redis/redis
 
+Setup
+
+```
+client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+```
+
 Get/set
+
+```
+// Get
+val, err := client.Get("key").Result()
+
+// Set
+err := client.Set("key", "value", 0).Err()
+```
 
 Get Range
 
+```
+// GetRange(key string, start, end int64) *StringCmd
+val, err := client.GetRange("key", 3, 5).Result()
+```
+
 HGet/HSet for structure
 
+```
+// HGet(key, field string) *StringCmd
+val, err := client.HGet("key", "foo")
+
+// HSet(key, field string, value interface{}) *BoolCmd
+err := client.HSet("key", "foo", "val").Result()
+```
+
 How to store/retrieve list
+// TODO: 実際に動かして確認
