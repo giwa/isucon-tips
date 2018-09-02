@@ -160,3 +160,9 @@ echo 'innodb_buffer_pool_size = 1GB' >> /etc/mysql/my.cnf
 echo 'innodb_flush_log_at_trx_commit = 2' >> /etc/mysql/my.cnf
 echo 'innodb_flush_method = O_DIRECT' >> /etc/mysql/my.cnf
 ```
+
+## kamipo TRADITIONAL
+
+```bash
+echo 'sql_mode = TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY' >> /etc/mysql/my.cnf
+```
