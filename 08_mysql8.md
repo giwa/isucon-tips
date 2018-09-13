@@ -1,5 +1,13 @@
 # MySQL 8 GA Installation Operation document
 
+## [ ] 本ファイルの文字置換
+
+置換元 => 置換先
+----------------
+ubuntu => 当日DBサーバへログインできるユーザ名
+isubata => 当日DB名
+52.194.230.212 => 当日DBサーバIPアドレス
+
 ## [ ] Install MySQL 8 into Centos7 
 
 ```
