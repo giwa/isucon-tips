@@ -1,14 +1,14 @@
 # MySQL 8 GA Installation Operation document
 
-## [ ] 本ファイルの文字置換
+## [ ] 本ファイルの文字置換
 
-置換元 => 置換先
+置換元 => 置換先
 ----------------
 ubuntu => 当日DBサーバへログインできるユーザ名
-isubata => 当日DB名
-52.194.230.212 => 当日DBサーバIPアドレス
+isubata => 当日DB名
+52.194.230.212 => 当日DBサーバIPアドレス
 
-## [ ] Install MySQL 8 into Centos7 
+## [ ] Install MySQL 8 into Centos7
 
 ```
 sudo rpm -ivh https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
@@ -86,7 +86,7 @@ sudo firewall-cmd --reload
 sudo firewall-cmd --list-services --zone=public  --permanent
 ```
 
-外部からのMySQLへの接続確認 
+外部からのMySQLへの接続確認
 
 ```
 # From local machine
@@ -127,6 +127,8 @@ systemctl restart mysqld
 
 ```
 mysql -u isucon -pIsuCon8_user
+# From local machine
+mysql -h52.194.230.212 -uisucon -pIsuCon8_user
 ```
 
 ## Restart MySQL
