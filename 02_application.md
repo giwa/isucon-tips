@@ -1,5 +1,25 @@
 # Application
 
+## Centos
+
+### install
+
+```
+yum -y install epel-release
+yum install -y ack
+yum install -y graphviz
+```
+
+#### Redis
+[Redis](https://github.com/giwa/isucon-tips/blob/master/04_redis.md)
+
+#### go package
+
+```
+go get -u github.com/google/pprof
+
+```
+
 ## Objective
 Understand application structure and problems. Check followings.
 
@@ -114,4 +134,116 @@ app.go
 ```
 
 
-### TODO add example
+
+## Solution sample
+
+
+### Stop db access
+`https://github.com/giwa/isucon7-qualifier/blob/4b6be1607ab11dcc3b5f854eab5bdfaaf95719df/src/isubata/app.go#L688`
+
+### fix loop query
+`https://github.com/giwa/isucon7-qualifier/blob/4b6be1607ab11dcc3b5f854eab5bdfaaf95719df/src/isubata/app.go#L353-L367`
+
+`https://github.com/giwa/isucon7-qualifier/blob/4b6be1607ab11dcc3b5f854eab5bdfaaf95719df/src/isubata/app.go#L390-L397`
+
+
+
+## Profiling
+### ppof
+[Go言語のプロファイリングツール、pprofのWeb UIがめちゃくちゃ便利なので紹介する](https://medium.com/eureka-engineering/go%E8%A8%80%E8%AA%9E%E3%81%AE%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0%E3%83%84%E3%83%BC%E3%83%AB-pprof%E3%81%AEweb-ui%E3%81%8C%E3%82%81%E3%81%A1%E3%82%83%E3%81%8F%E3%81%A1%E3%82%83%E4%BE%BF%E5%88%A9%E3%81%AA%E3%81%AE%E3%81%A7%E7%B4%B9%E4%BB%8B%E3%81%99%E3%82%8B-6a34a489c9ee)
+
+```
+# Goがインストール済みなことを確認
+$ go version
+go version go1.9.2 darwin/amd64
+# pprofをインストール（すでに入っていればアップデート）
+$ go get -u github.com/google/pprof
+# graphvizが必要なのでインストール
+$ yum install -y graphviz
+```
+
+```
+$ pprof -http=localhost:8080 ~/isucon7-qualify/webapp/go/src/isubata/  http://localhost:6060/debug/pprof/profile
+[POINT]
+上記はpprof/profileのエンドポイントは、CPUに関してのプロファイルとなりますが、エンドポイントを変えればメモリやブロック待ち時間など色々なプロファイリングが可能です。
+http://localhost:6060/debug/pprof/heap
+http://localhost:6060/debug/pprof/block
+http://localhost:6060/debug/pprof/goroutine
+http://localhost:6060/debug/pprof/threadcreate
+http://localhost:6060/debug/pprof/mutex
+```
+
+- http://localhost:6060/debug/pprof/block?debug=1
+
+```
+--- contention:
+cycles/second=2904003184
+```
+
+http://localhost:8080/ui/peek
+
+```
+ Type: cpu
+Time: Sep 2, 2018 at 2:52pm (JST)
+Duration: 30s, Total samples = 20ms (0.067%)
+Showing nodes accounting for 20ms, 100% of 20ms total
+----------------------------------------------------------+-------------
+      flat  flat%   sum%        cum   cum%   calls calls% + context 	 	 
+----------------------------------------------------------+-------------
+                                              10ms 50.00% |   runtime.runqgrab /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4800
+                                              10ms 50.00% |   runtime.sysmon /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4221
+      20ms   100%   100%       20ms   100%                | runtime.usleep /usr/local/Cellar/go/1.10.3/libexec/src/runtime/sys_darwin_amd64.s:418
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.schedule /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2541
+         0     0%   100%       10ms 50.00%                | runtime.findrunnable /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2286
+                                              10ms   100% |   runtime.runqsteal /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4835
+----------------------------------------------------------+-------------
+         0     0%   100%       10ms 50.00%                | runtime.mcall /usr/local/Cellar/go/1.10.3/libexec/src/runtime/asm_amd64.s:351
+                                              10ms   100% |   runtime.park_m /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2604
+----------------------------------------------------------+-------------
+         0     0%   100%       10ms 50.00%                | runtime.mstart /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:1193
+                                              10ms   100% |   runtime.mstart1 /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:1227
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.mstart /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:1193
+         0     0%   100%       10ms 50.00%                | runtime.mstart1 /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:1227
+                                              10ms   100% |   runtime.sysmon /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4221
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.mcall /usr/local/Cellar/go/1.10.3/libexec/src/runtime/asm_amd64.s:351
+         0     0%   100%       10ms 50.00%                | runtime.park_m /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2604
+                                              10ms   100% |   runtime.schedule /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2541
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.runqsteal /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4835
+         0     0%   100%       10ms 50.00%                | runtime.runqgrab /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4800
+                                              10ms   100% |   runtime.usleep /usr/local/Cellar/go/1.10.3/libexec/src/runtime/sys_darwin_amd64.s:418
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.findrunnable /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2286
+         0     0%   100%       10ms 50.00%                | runtime.runqsteal /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4835
+                                              10ms   100% |   runtime.runqgrab /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4800
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.park_m /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2604
+         0     0%   100%       10ms 50.00%                | runtime.schedule /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2541
+                                              10ms   100% |   runtime.findrunnable /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:2286
+----------------------------------------------------------+-------------
+                                              10ms   100% |   runtime.mstart1 /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:1227
+         0     0%   100%       10ms 50.00%                | runtime.sysmon /usr/local/Cellar/go/1.10.3/libexec/src/runtime/proc.go:4221
+                                              10ms   100% |   runtime.usleep /usr/local/Cellar/go/1.10.3/libexec/src/runtime/sys_darwin_amd64.s:418
+----------------------------------------------------------+-------------
+```
+
+
+## Logger
+[graqt](https://github.com/serinuntius/graqt)
+
+https://serinuntius.hatenablog.jp/entry/2018/05/01/083000
+
+
+## N+1
+message
+
+https://github.com/ryotarai/isucon7q/commit/c98e4447f0f1ea822ebe64df2e33cfc86c6752b4#diff-65a7f662a18446a4877f858721cc010e
+
+history
+
+https://github.com/ryotarai/isucon7q/commit/c98e4447f0f1ea822ebe64df2e33cfc86c6752b4#diff-65a7f662a18446a4877f858721cc010e
+
+
